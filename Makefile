@@ -1,5 +1,5 @@
 
-ROOTINCL  = `${ROOTSYS}/bin/root-config --cflags`
+ROOTINCL = `${ROOTSYS}/bin/root-config --cflags`
 
 # default: ${BIN}/pex.so
 default: iStorage
