@@ -1,22 +1,29 @@
 
+NAME = iStorage
+
 ROOTINCL = `${ROOTSYS}/bin/root-config --cflags`
 
-# default: ${BIN}/pex.so
-default: iStorage
+# default: ${BIN}/${NAME}.so
+default: ${NAME}
 
 clean:
-	rm -f *.o *dict.* *.so
+	@echo -n " clean:            "
+	rm -f *.o *.gch *.dict.* *.so
 
+${NAME}.dict.cc: ${NAME}.cc ${NAME}.linkdef.h
+	@echo -n " ${NAME}.dict.cc: "
+	rootcint -f ${NAME}.dict.cc -c -g ${ROOTINCL} ${NAME}.cc ${NAME}.linkdef.h
 
-iStoragedict.cc: iStorage.cc iStorage.linkdef.h
-	rootcint -f iStoragedict.cc -c -g ${ROOTINCL} iStorage.cc iStorage.linkdef.h
+${NAME}.dict.o: ${NAME}.dict.cc
+	@echo -n " ${NAME}.dict.o:  "
+	g++ -fPIC -c -g -o ${NAME}.dict.o ${ROOTINCL} ${NAME}.dict.cc
 
-iStoragedict.o: iStoragedict.cc
-	g++ -fPIC -c -g -o iStoragedict.o ${ROOTINCL} iStoragedict.cc
+${NAME}.o: ${NAME}.cc ${NAME}.hh
+	@echo -n " ${NAME}.o:       "
+	g++ -fPIC -c -g -o ${NAME}.o ${ROOTINCL} ${NAME}.cc
 
-iStorage.o: iStorage.cc iStorage.hh
-	g++ -fPIC -c -g -o iStorage.o ${ROOTINCL} iStorage.cc
-
-iStorage: clean iStorage.o iStoragedict.o
-	g++ -fPIC -shared ${ROOTINCL} -o iStorage.so iStoragedict.o iStorage.o
-	rm -f *.o *dict.*
+${NAME}: clean ${NAME}.o ${NAME}.dict.o
+	@echo -n " ${NAME}.so:      "
+	g++ -fPIC -shared ${ROOTINCL} -o ${NAME}.so ${NAME}.dict.o ${NAME}.o
+	@echo -n " clean:            "
+	rm -f *.o *.gch *.dict.*
